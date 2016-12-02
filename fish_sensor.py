@@ -9,9 +9,8 @@ import RPi.GPIO as GPIO ## Import GPIO library
 configfile = "/etc/fishmob.cfg"
 
 
-parser = argparse.ArgumentParser(description="program controlling fishmob \n specify Action, PIN \n uses configfile in /etc")
-parser.add_argument("action", help="read = read sensor, or control = control a device", type=str)
-parser.add_argument("devicename", help="Name des Sensors oder des Geräts lt Section des config file", type=str)
+parser = argparse.ArgumentParser(description="getting sensor data for fishmob \n specify sensor in configfile")
+parser.add_argument("devicename", help="Name des Sensors lt Section des config file", type=str)
 parser.add_argument("--help, ")
 args = parser.parse_args()
 
