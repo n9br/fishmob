@@ -4,7 +4,7 @@
 import argparse
 import ConfigParser
 import datetime
-import RPi.GPIO as GPIO ## Import GPIO library
+# import RPi.GPIO as GPIO ## Import GPIO library
 import sqlite3 as lite
 import sys
 
@@ -32,12 +32,10 @@ lSensor = Config.items(args.devicename)
 Sensor = dict(lSensor)
 print Sensor
 
-# initialize mode; using  
-GPIO.setmode(GPIO.BOARD)
+# initialize mode; using
+# GPIO.setmode(GPIO.BOARD)
 
 # set direction of PINs (in/out)
-pin = int(Sensor['pin'])
-print Sensor['pin']
-GPIO.setup(pin, GPIO.OUT)
-
-
+# pin = int(Sensor['pin'])
+# print Sensor['pin']
+# GPIO.setup(pin, GPIO.OUT)
