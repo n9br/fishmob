@@ -30,3 +30,5 @@ Config.read(configfile)
 # Sensor = key/value dict of properties
 for section in Config.sections():
     print Config.items(section)
+
+print "bye!"
