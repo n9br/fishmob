@@ -4,6 +4,7 @@
 import argparse
 import ConfigParser
 import datetime
+# import RPi.GPIO as GPIO ## Import GPIO library
 import sqlite3 as lite
 import sys
 
