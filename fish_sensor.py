@@ -27,20 +27,5 @@ Config=ConfigParser.ConfigParser()
 Config
 Config.read(configfile)
 
-# Sensor = key/value dict of properties
-<<<<<<< HEAD
-lSensor = Config.items(args.devicename)
-Sensor = dict(lSensor)
-print Sensor
-
-# initialize mode; using
-# GPIO.setmode(GPIO.BOARD)
-
-# set direction of PINs (in/out)
-# pin = int(Sensor['pin'])
-# print Sensor['pin']
-# GPIO.setup(pin, GPIO.OUT)
-=======
 for section in Config.sections():
     print Config.items(section)
->>>>>>> master
