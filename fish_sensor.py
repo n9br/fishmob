@@ -29,3 +29,5 @@ Config.read(configfile)
 
 for section in Config.sections():
     print Config.items(section)
+
+print "bye!"
