@@ -1,14 +1,13 @@
 #!/usr/bin/env python#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import platform
 import argparse
 import ConfigParser
 import datetime
 # import RPi.GPIO as GPIO ## Import GPIO library
 import sqlite3 as lite
 import sys
-
-from Adafruit_BME280 import *
 
 con None
 
@@ -36,24 +35,38 @@ for section in Config.sections():
     itemlist = dict(Config.items(section))
 #   if itemlist['category'] == "Temp": kann später eingegrenzt werden
 #   debug    print Config.items(section)
-    if itemlist['type'] == "BME280":
-        sensor = BME280(mode=BME280_OSAMPLE_8)
-        degrees = sensor.read_temperature
-        pascals = sensor.read_pressure()
-        hectopascals = pascals / 100
-        humidity = sensor.read_humidity()
-        print 'Temp      = {0:0.3f} deg C'.format(degrees)
-        print 'Pressure  = {0:0.2f} hPa'.format(hectopascals)
-        print 'Humidity  = {0:0.2f} %'.format(humidity)
+    if not platform.machine() == 'armv7l':
+        break;
+    else:
 
-#   get values  -> hand PIN, system , type
+## adjust values
+        if itemlist['type'] == "BME280":
+            from Adafruit_BME280 import *
 
+            sensor = BME280(mode=BME280_OSAMPLE_8)
+            degrees = sensor.read_temperature
+            pascals = sensor.read_pressure()
+            hectopascals = pascals / 100
+            humidity = sensor.read_humidity()
+            print 'Sensor    = %'.format(section)
+            print 'Temp      = {0:0.3f} deg C'.format(degrees)
+            print 'Pressure  = {0:0.2f} hPa'.format(hectopascals)
+            print 'Humidity  = {0:0.2f} %'.format(humidity)
+
+ ##   get values  -> hand PIN / address ??
+
+###############
 # db handling
-    con = lite.connect(dbname)
-    cur = con.cursor()
+con = lite.connect(dbname)
+cur = con.cursor()
 
-    cur.execute('''CREATE TABLE IF NOT EXISTS section (date text, hour int, min int, hum real, press real, temp real )''')
-    > check if need to create table like
-    cursor.execute(""" SELECT COUNT(*) FROM sqlite_master WHERE name = ?  """, (tablename, ))
-    res = self.cursor.fetchone()
-    print bool(res[0]) # True if exists
+    #cur.execute('''CREATE TABLE IF NOT EXISTS section (date text, hour int, min int, hum real, press real, temp real )''')
+# create table if not exists
+cur.execute('CREATE TABLE IF NOT EXISTS '
+    + section
+    + ' (date text, hour int, min int, hum real, press real, temp real )');
+    ## check if need to create table like
+    #cur.execute(""" SELECT COUNT(*) FROM sqlite_master WHERE name = ?  """, (section, ))
+    #if not cursor.fetchone():
+    #    cur.execute('''CREATE TABLE ? )
+    
