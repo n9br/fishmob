@@ -1,4 +1,4 @@
-#!/usr/bin/env python#!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import platform
@@ -9,16 +9,16 @@ import datetime
 import sqlite3 as lite
 import sys
 
-con None
+# con None
+configfile = "/etc/fishmob/sensors.cfg"
 
-parser = argparse.ArgumentParser(description="getting sensor data for fishmob \n specify sensor in configfile")
+
+parser = argparse.ArgumentParser(description="getting sensor data for fishmob \n specify sensor in configfile %s" % configfile)
 # parser.add_argument("devicename", help="Name des Sensors lt Section des config file", type=str)
 parser.add_argument("--help, ")
 args = parser.parse_args()
 
 now = datetime.datetime.now()
-# configfile = "/etc/fishmob.cfg"
-configfile = "/etc/fishmob/sensors.cfg"
 dbname = str(now.year)+str(now.month)+'.db'
 
 
@@ -30,13 +30,16 @@ Config=ConfigParser.ConfigParser()
 Config
 Config.read(configfile)
 
-# Sensor = key/value dict of properties
+con = lite.connect(dbname)
+cur = con.cursor()
+
+
 for section in Config.sections():
-    itemlist = dict(Config.items(section))
+    itemlist = dict(Config.items(section))          # Sensor = key/value dict of properties
 #   if itemlist['category'] == "Temp": kann später eingegrenzt werden
-#   debug    print Config.items(section)
+
     if not platform.machine() == 'armv7l':
-        break;
+        next;
     else:
 
 ## adjust values
@@ -54,19 +57,17 @@ for section in Config.sections():
             print 'Humidity  = {0:0.2f} %'.format(humidity)
 
  ##   get values  -> hand PIN / address ??
-
-###############
-# db handling
-con = lite.connect(dbname)
-cur = con.cursor()
-
+    print section
     #cur.execute('''CREATE TABLE IF NOT EXISTS section (date text, hour int, min int, hum real, press real, temp real )''')
 # create table if not exists
-cur.execute('CREATE TABLE IF NOT EXISTS '
-    + section
-    + ' (date text, hour int, min int, hum real, press real, temp real )');
+    cur.execute('''CREATE TABLE IF NOT EXISTS '
+        + section
+        + ' (date text, hour int, min int, hum real, press real, temp real )''');
     ## check if need to create table like
     #cur.execute(""" SELECT COUNT(*) FROM sqlite_master WHERE name = ?  """, (section, ))
     #if not cursor.fetchone():
     #    cur.execute('''CREATE TABLE ? )
-    
+
+con.commit()
+if con:
+    con.close()
