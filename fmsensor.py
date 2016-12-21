@@ -20,6 +20,7 @@ args = parser.parse_args()
 
 now = datetime.datetime.now()
 dbname = str(now.year)+str(now.month)+'.db'
+date = str(now.date())
 
 
 # initialize and read config
@@ -36,10 +37,17 @@ cur = con.cursor()
 
 for section in Config.sections():
     itemlist = dict(Config.items(section))          # Sensor = key/value dict of properties
-#   if itemlist['category'] == "Temp": kann später eingegrenzt werden
-
+#    print section
     if not platform.machine() == 'armv7l':
-        next;
+        import random
+        random.seed()
+        degrees = random.uniform(-5,30)
+        hectopascals = random.uniform(1000,1020)
+        humidity = random.uniform(30,99)
+        print 'Temp      = {0:0.3f} deg C'.format(degrees)
+        print 'Pressure  = {0:0.2f} hPa'.format(hectopascals)
+        print 'Humidity  = {0:0.2f} %'.format(humidity)
+#        next;
     else:
 
 ## adjust values
@@ -55,18 +63,20 @@ for section in Config.sections():
             print 'Temp      = {0:0.3f} deg C'.format(degrees)
             print 'Pressure  = {0:0.2f} hPa'.format(hectopascals)
             print 'Humidity  = {0:0.2f} %'.format(humidity)
+#   create table if non-existent
+    cur.execute('CREATE TABLE IF NOT EXISTS {tn} \
+        (date text, hour int, min int, hum real, press real, temp real )'.format(tn=section))
 
- ##   get values  -> hand PIN / address ??
-    print section
-    #cur.execute('''CREATE TABLE IF NOT EXISTS section (date text, hour int, min int, hum real, press real, temp real )''')
-# create table if not exists
-    cur.execute('''CREATE TABLE IF NOT EXISTS '
-        + section
-        + ' (date text, hour int, min int, hum real, press real, temp real )''');
-    ## check if need to create table like
-    #cur.execute(""" SELECT COUNT(*) FROM sqlite_master WHERE name = ?  """, (section, ))
-    #if not cursor.fetchone():
-    #    cur.execute('''CREATE TABLE ? )
+#   insert Data
+    cur.execute("INSERT INTO {tn} VALUES ({dt},{hr},{min},{hum},{press},{temp})".\
+        format(tn=section, dt=date, hr=now.hour, min=now.minute, hum=humidity, press=hectopascals, temp=degrees))
+#    cur.execute("INSERT INTO TempSensor1 VALUES ('2016-12-21','08','07')")
+
+#    try:
+#        cur.execute('INSERT INTO {tn} VALUES ('2016-12-20',now.hour,now.min)'.format(tn=section))
+#    except sqlite3.IntegrityError:
+#        print('ERROR: ID already exists in PRIMARY KEY column {}'.format(id_column))
+
 
 con.commit()
 if con:
