@@ -20,7 +20,8 @@ args = parser.parse_args()
 
 now = datetime.datetime.now()
 dbname = str(now.year)+str(now.month)+'.db'
-date = str(now.date())
+sDate = str(now.date())
+print sDate
 
 
 # initialize and read config
@@ -59,7 +60,7 @@ for section in Config.sections():
             pascals = sensor.read_pressure()
             hectopascals = pascals / 100
             humidity = sensor.read_humidity()
-            print 'Sensor    = %'.format(section)
+            print 'Sensor    = {sens}'.format(sens=section)
             print 'Temp      = {0:0.3f} deg C'.format(degrees)
             print 'Pressure  = {0:0.2f} hPa'.format(hectopascals)
             print 'Humidity  = {0:0.2f} %'.format(humidity)
@@ -69,7 +70,7 @@ for section in Config.sections():
 
 #   insert Data
     cur.execute("INSERT INTO {tn} VALUES ({dt},{hr},{min},{hum},{press},{temp})".\
-        format(tn=section, dt=date, hr=now.hour, min=now.minute, hum=humidity, press=hectopascals, temp=degrees))
+        format(tn=section, dt=sDate, hr=now.hour, min=now.minute, hum=humidity, press=hectopascals, temp=degrees))
 #    cur.execute("INSERT INTO TempSensor1 VALUES ('2016-12-21','08','07')")
 
 #    try:
