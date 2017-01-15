@@ -1,49 +1,94 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import platform
 import argparse
 import ConfigParser
 import datetime
+import logging
 # import RPi.GPIO as GPIO ## Import GPIO library
+import os
+import platform
 import sqlite3 as lite
 import sys
-import os
 
 # con None
-configfile = "/etc/fishmob/sensors.cfg"
+# dbdir = "/var/lib/fishmob/"
+# dbdir = "~/.fishmob/"
+configfile = "/etc/fishmob/fishmob.cfg"
+sensorsfile = "/etc/fishmob/sensors.cfg"
+
+# logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
-parser = argparse.ArgumentParser(description="getting sensor data for fishmob \n specify sensor in configfile %s" % configfile)
+parser = argparse.ArgumentParser(description="getting sensor data for fishmob \n specify sensor in configfile %s" % sensorsfile)
 # parser.add_argument("devicename", help="Name des Sensors lt Section des config file", type=str)
 parser.add_argument("--help, ")
 args = parser.parse_args()
 
 now = datetime.datetime.now()
 
-if not (os.access('/var/lib/fishmob', os.W_OK)):
-    print "pls execute 'sudo mkdir /var/lib/fishmob && sudo chown pi /var/lib/fishmob'"
-    sys.exit(1)
+# initialize and read config
+# fConfig wird eine Liste von Dictionaries, ansprechbar via Config.items[Sectionname]
+fConfig=ConfigParser.ConfigParser()
+fConfig
+logger.info('reading general config')
+try:
+    fConfig.read(configfile)
+except:
+    logger.error('Failed to read ' + configfile)
 
-dbname = str(now.year)+str(now.month).zfill(2)+'.db'
+try:
+    dCommon = dict(fConfig.items('Common'))
+except:
+    logger.error('Cant\'t read dbdir from %s' % configfile)
+
+# Check DB Location and open
+dbdir = dCommon['dbdir']
+if not dbdir.endswith('/'):
+    dbdir = dbdir + '/'
+dbdir = os.path.expanduser(dbdir)
+logger.info('dbdir is ' + dbdir)
+dbname = dbdir + str(now.year) + str(now.month).zfill(2) + '.db'
 # sDate = str(now.date())
 # print sDate
 
 
-# initialize and read config
-# Config wird eine Liste von Dictionaries
-# ansprechbar via Config.items[Sectionname]
-Config=ConfigParser.ConfigParser()
+# initialize and read sensorconfig
+# Config wird eine Liste von Dictionaries, ansprechbar via Config.items[Sectionname]
+fSensors=ConfigParser.ConfigParser()
 # create instance
-Config
-Config.read(configfile)
+fSensors
+logger.info('reading sensors config')
+try:
+    fSensors.read(sensorsfile)
+except:
+    logger.error('Failed to read ' + sensorsfile)
 
-con = lite.connect(dbname)
+# dbDir prüfen
+try:
+    if not os.path.exists(dbdir):
+        os.makedirs(dbdir)
+except (SystemExit, KeyboardInterrupt):
+    raise
+except Exception, e:
+    logger.error('Failed to create directory' + dbdir, exc_info=True)
+
+
+# DB connection
+try:
+    con = lite.connect(dbname)
+except (SystemExit, KeyboardInterrupt):
+    raise
+except Exception, e:
+    logger.error('Failed to open file' + dbname, exc_info=True)
+
 cur = con.cursor()
 
 
-for section in Config.sections():
-    itemlist = dict(Config.items(section))          # Sensor = key/value dict of properties
+for section in fSensors.sections():
+    itemlist = dict(fSensors.items(section))          # Sensor = key/value dict of properties
 #    print section
     if not platform.machine() == 'armv7l':
         import random
