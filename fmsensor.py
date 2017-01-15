@@ -73,7 +73,7 @@ try:
 except (SystemExit, KeyboardInterrupt):
     raise
 except Exception, e:
-    logger.error('Failed to create directory' + dbdir, exc_info=True)
+    logger.error('Failed to create directory' + dbdir)
 
 
 # DB connection
@@ -82,7 +82,7 @@ try:
 except (SystemExit, KeyboardInterrupt):
     raise
 except Exception, e:
-    logger.error('Failed to open file' + dbname, exc_info=True)
+    logger.error('Failed to open file' + dbname)
 
 cur = con.cursor()
 
